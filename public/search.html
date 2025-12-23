@@ -7,12 +7,39 @@
     <title>Search Music - MusicTube</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* הגבלת כותרת ל-2 שורות עם שלוש נקודות בסוף */
+        .video-title {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            height: 3rem;
+            line-height: 1.5rem;
+        }
+
+        /* שיפור קטן לכרטיסיות שייראו אחידות */
+        .card {
+            border: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-img-top {
+            object-fit: cover;
+            height: 180px;
+        }
+    </style>
 </head>
 
 <body class="bg-light">
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4 shadow">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4 shadow sticky-top">
         <div class="container">
             <a class="navbar-brand fw-bold text-primary" href="search.html">MusicTube</a>
 
@@ -71,7 +98,7 @@
     </div>
 
     <div class="modal fade" id="playlistModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Add to Favorites</h5>

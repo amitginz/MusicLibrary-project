@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="he">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MusicTube - My Playlists</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        /* Sidebar styling */
+        .sidebar {
+            min-height: calc(100vh - 56px);
+            background: white;
+            border-right: 1px solid #dee2e6;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+
+        /* --- תיקון טבלה - איפוס מוחלט למניעת קווים כפולים --- */
+        .table {
+            border-collapse: collapse !important;
+        }
+
+        /* מוחק את כל הקווים מברירת המחדל של Bootstrap */
+        .table td,
+        .table th,
+        .table tr {
+            border: none !important;
+            box-shadow: none !important;
+        }
+
+        /* מגדיר קו אחד, דק ואחיד רק בתחתית של כל שורה */
+        .table tbody tr {
+            border-bottom: 1px solid #dee2e6 !important;
+        }
+
+        /* יישור מושלם למרכז האנכי לכל התאים */
+        .table td {
+            vertical-align: middle !important;
+            padding: 15px 10px !important;
+            background-color: #ffffff;
+        }
+
+        /* כותרת השיר - ללא גבולות פנימיים וללא שבירת שורות */
+        .video-title {
+            display: inline-block;
+            /* חשוב מאוד: מונע יצירת קו תחתון נפרד */
+            max-width: 450px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1;
+            margin: 0;
+            padding: 0;
+            border: none !important;
+        }
+
+        /* התאמות למובייל */
+        @media (max-width: 767.98px) {
+            .sidebar {
+                border-right: none;
+                border-bottom: 1px solid #dee2e6;
+                min-height: auto;
+            }
+
+            .video-title {
+                max-width: 180px;
+            }
+        }
+
+        #uploadArea {
+            background-color: #f1f3f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold text-primary" href="search.html">MusicTube</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link" href="search.html">Search</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="playlists.html">My Playlists</a></li>
+                </ul>
+                <div id="userInfo" class="d-flex align-items-center text-white"></div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block sidebar collapse shadow-sm">
+                <h4 class="mb-3 text-dark mt-2">My Library</h4>
+                <button class="btn btn-primary w-100 mb-4 shadow-sm" data-bs-toggle="modal"
+                    data-bs-target="#newPlaylistModal">
+                    <i class="bi bi-plus-circle me-2"></i>New Playlist
+                </button>
+                <div id="playlistSidebarList" class="list-group mb-4"></div>
+                <hr>
+                <div id="uploadArea" class="d-none mt-4 p-3 bg-light rounded shadow-sm">
+                    <h6 class="text-muted mb-2">Upload MP3:</h6>
+                    <input type="file" id="mp3FileInput" class="form-control form-control-sm mb-2" accept=".mp3">
+                    <button class="btn btn-outline-success btn-sm w-100" onclick="uploadMP3()">
+                        <i class="bi bi-upload me-1"></i>Upload
+                    </button>
+                    <div id="uploadStatus" class="small mt-1 text-center"></div>
+                </div>
+            </nav>
+
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+                <div
+                    class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 border-bottom pb-3">
+                    <h1 class="h2 mb-2 mb-md-0" id="currentPlaylistName">Select a Playlist</h1>
+                    <div id="playlistActions" class="d-none">
+                        <button class="btn btn-outline-danger btn-sm" onclick="deleteCurrentPlaylist()">
+                            <i class="bi bi-trash me-1"></i>Delete Playlist
+                        </button>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-12 col-md-6">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                            <input type="text" id="innerSearch" class="form-control" placeholder="Search songs..."
+                                onkeyup="filterSongs()">
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6 text-md-end">
+                        <select id="sortSelect" class="form-select d-inline-block w-auto" onchange="sortSongs()">
+                            <option value="">Sort by...</option>
+                            <option value="name">A-Z</option>
+                            <option value="rating">Rating</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="table-responsive bg-white rounded shadow-sm">
+                    <table class="table mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 50px;">#</th>
+                                <th>Title</th>
+                                <th class="text-center" style="width: 130px;">Rating</th>
+                                <th class="text-center" style="width: 80px;">Del</th>
+                                <th class="text-center" style="width: 80px;">Play</th>
+                            </tr>
+                        </thead>
+                        <tbody id="songsTableBody"></tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <div class="modal fade" id="playerModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content bg-dark text-white shadow-lg">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title" id="playerTitle">Music Player</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-0" style="background-color: #000; min-height: 300px;">
+                    <div class="ratio ratio-16x9">
+                        <div id="youtube-player-container"></div>
+                        <div id="local-player-container"
+                            class="d-none d-flex flex-column align-items-center justify-content-center p-4">
+                            <i class="bi bi-music-note-beamed display-1 mb-3 text-primary"></i>
+                            <h5 id="localTrackTitle" class="mb-4 text-center"></h5>
+                            <audio id="localAudioPlayer" controls class="w-100"></audio>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary d-flex justify-content-between">
+                    <button class="btn btn-outline-light btn-sm" onclick="prevTrack()"><i
+                            class="bi bi-skip-start-fill"></i></button>
+                    <span id="queueStatus" class="small">0 / 0</span>
+                    <button class="btn btn-outline-light btn-sm" onclick="nextTrack()"><i
+                            class="bi bi-skip-end-fill"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="newPlaylistModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create New Playlist</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" id="newPlaylistNameInput" class="form-control" placeholder="Playlist name...">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary w-100" onclick="createNewPlaylist()">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/playlists.js"></script>
+</body>
+
+</html>

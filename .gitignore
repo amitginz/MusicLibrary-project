@@ -1,0 +1,19 @@
+# Dependency directories
+node_modules/
+
+# Local configuration and secret files
+.env
+.env.local
+
+# User uploads (MP3 files)
+uploads/
+*.mp3
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS metadata
+.DS_Store
+Thumbs.db
