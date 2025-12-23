@@ -14,7 +14,12 @@ firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 function onYouTubeIframeAPIReady() {
     console.log("YouTube API Ready");
 }
-
+window.addEventListener('pageshow', (event) => {
+    // אם הדף נטען מהמטמון (למשל בלחיצה על "אחורה")
+    if (event.persisted) {
+        window.location.reload();
+    }
+});
 // --- 1. מאזין עצירה גלובלי (תמיד פעיל) ---
 // הפתרון המוחץ: מחיקת ה-HTML של הנגנים בסגירה כדי להבטיח שקט מוחלט
 document.addEventListener('hidden.bs.modal', function (event) {
@@ -376,5 +381,5 @@ async function uploadMP3() {
 
 function logout() {
     sessionStorage.removeItem('currentUser');
-    window.location.href = 'index.html';
+    window.location.replace('index.html');
 }

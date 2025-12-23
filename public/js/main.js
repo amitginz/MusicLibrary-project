@@ -1,6 +1,10 @@
 // פונקציה שתרוץ בכל פעם שדף נטען
 document.addEventListener("DOMContentLoaded", function () {
     checkUserLogin();
+    // אם המשתמש כבר מחובר, אל תאפשר לו לראות את דף הלוגין
+    if (sessionStorage.getItem('currentUser')) {
+        window.location.replace('search.html'); // replace מונע שמירה של הדף הנוכחי בהיסטוריה
+    }
 });
 
 function checkUserLogin() {

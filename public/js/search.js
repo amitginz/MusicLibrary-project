@@ -2,7 +2,12 @@
 let currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
 let currentVideos = [];
 let selectedVideo = null;
-
+window.addEventListener('pageshow', (event) => {
+    // אם הדף נטען מהמטמון (למשל בלחיצה על "אחורה")
+    if (event.persisted) {
+        window.location.reload();
+    }
+});
 document.addEventListener('DOMContentLoaded', () => {
     if (!currentUser) {
         window.location.href = 'login.html';
@@ -165,7 +170,7 @@ function logout() {
     sessionStorage.removeItem('currentUser');
     sessionStorage.removeItem('lastSearchQuery');
     sessionStorage.removeItem('lastSearchResults');
-    window.location.href = 'index.html';
+    window.location.replace('index.html');
 }
 
 // עדכון פונקציית displayUserInfo שתתאים לעיצוב החדש

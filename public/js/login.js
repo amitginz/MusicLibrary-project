@@ -19,7 +19,7 @@ document.getElementById('loginForm').addEventListener('submit', async function (
         if (response.ok) {
             // שמירת המשתמש שחזר מהשרת ב-SessionStorage
             sessionStorage.setItem('currentUser', JSON.stringify(result.user));
-            window.location.href = 'search.html'; // מעבר לדף החיפוש
+            window.location.replace('search.html'); // מעבר לדף החיפוש
         } else {
             errorDisplay.innerText = result.message || "Invalid username or password.";
         }
@@ -28,3 +28,4 @@ document.getElementById('loginForm').addEventListener('submit', async function (
         errorDisplay.innerText = "Server connection error.";
     }
 });
+
