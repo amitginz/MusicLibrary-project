@@ -49,13 +49,16 @@ const readJsonFile = (filePath, defaultVal = {}) => {
 };
 
 // --- API Endpoints ---
-// server.js
 app.get('/api/search', async (req, res) => {
     try {
         const query = req.query.q;
         const key = process.env.YOUTUBE_API_KEY;
 
-        // שלב א: חיפוש
+        if (!query) {
+            return res.status(400).json({ error: "Query is required" });
+        }
+
+        // שלב א: חיפוש סרטונים ביוטיוב
         const searchRes = await fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=12&q=${encodeURIComponent(query)}&type=video&key=${key}`);
         const searchData = await searchRes.json();
 
@@ -63,16 +66,19 @@ app.get('/api/search', async (req, res) => {
             return res.json({ items: [] });
         }
 
-        // שלב ב: קבלת נתונים נוספים (זמן וצפיות) עבור כל ה-IDs
+        // שלב ב: חילוץ ה-IDs וביצוע קריאה נוספת לנתונים סטטיסטיים (זמן וצפיות)
         const videoIds = searchData.items.map(item => item.id.videoId).join(',');
         const statsRes = await fetch(`https://www.googleapis.com/youtube/v3/videos?part=contentDetails,statistics&id=${videoIds}&key=${key}`);
         const statsData = await statsRes.json();
 
-        // איחוד הנתונים
+        // שלב ג: איחוד הנתונים עם התיקון ל-videoId
         const combinedItems = searchData.items.map(item => {
-            const details = statsData.items.find(v => v.id === item.id.videoId);
+            const videoId = item.id.videoId; // חילוץ ה-ID המקורי
+            const details = statsData.items.find(v => v.id === videoId);
+
             return {
                 ...item,
+                videoId: videoId, // הוספת ה-ID ברמה הראשית למניעת undefined בלקוח
                 duration: details ? details.contentDetails.duration : 'PT0S',
                 viewCount: details ? details.statistics.viewCount : '0'
             };
