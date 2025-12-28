@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // מאזין לסגירת מודאל הנגן - עוצר את המוזיקה (דרישה 53)
+    // מאזין לסגירת מודאל הנגן - עוצר את המוזיקה 
     const videoModalElem = document.getElementById('videoModal');
     if (videoModalElem) {
         videoModalElem.addEventListener('hidden.bs.modal', () => {
@@ -106,63 +106,87 @@ function formatDuration(pt) {
     const duration = pt.replace('PT', '').replace('H', ':').replace('M', ':').replace('S', '');
     return duration;
 }
-
+//מראה את כמות הצופים
 function formatViews(views) {
     if (views >= 1000000) return (views / 1000000).toFixed(1) + 'M';
     if (views >= 1000) return (views / 1000).toFixed(1) + 'K';
     return views;
 }
 
+function decodeHtml(html) {
+    const txt = document.createElement("textarea");
+    txt.innerHTML = html;
+    return txt.value;
+}
+
 function renderResults(videos) {
     const container = document.getElementById('resultsContainer');
+    if (!container) return;
     container.innerHTML = '';
 
-    // בדיקה אם הסרטון נמצא לפחות באחד הפלייליסטים (דרישה 61)
     const allSavedVideoIds = (currentUser.playlists || []).flatMap(pl =>
         (pl.songs || []).map(s => s.videoId)
     );
 
-    videos.forEach(video => {
-        const videoId = video.id.videoId;
-        const title = video.snippet.title;
-        const thumb = video.snippet.thumbnails.high.url;
+    videos.forEach((video) => {
+        const videoId = video.videoId || (video.id && video.id.videoId) || video.id;
+        if (!videoId || typeof videoId !== 'string') return;
 
-        // האם השיר קיים איפשהו? (עבור סימון ה-V)
+        // ניקוי הכותרת מהתגים המיוחדים (כמו &#39;)
+        const cleanTitle = decodeHtml(video.snippet.title);
+        const thumb = video.snippet.thumbnails.high.url;
         const isSavedSomewhere = allSavedVideoIds.includes(videoId);
 
-        container.innerHTML += `
-            <div class="col">
-                <div class="card h-100 shadow-sm border-0">
-                    <div class="position-relative">
-                        <img src="${thumb}" class="card-img-top" style="cursor:pointer" onclick="openPlayer('${videoId}', '${title.replace(/'/g, "\\'")}')">
-                        <span class="badge bg-dark position-absolute bottom-0 end-0 m-2">${video.duration || ''}</span>
-                    </div>
-                    <div class="card-body d-flex flex-column">
-                        <h6 class="card-title text-truncate-2" title="${title}">
-                            ${isSavedSomewhere ? '<span class="text-success">✔</span> ' : ''}${title}
-                        </h6>
-                        <p class="text-muted small mb-2">${video.views || '0'} views</p>
-                        
-                        <button class="btn btn-primary btn-sm mt-auto" 
-                                onclick="openAddModal('${videoId}', '${title.replace(/'/g, "\\'")}')">
-                            Add to Favorites
-                        </button>
-                    </div>
+        const col = document.createElement('div');
+        col.className = 'col-md-4 mb-4'; // הוספת מחלקות Bootstrap לעימוד
+        col.innerHTML = `
+            <div class="card h-100 shadow-sm border-0">
+                <div class="position-relative">
+                    <img src="${thumb}" class="card-img-top preview-trigger" style="cursor:pointer" alt="thumbnail">
+                    <span class="badge bg-dark position-absolute bottom-0 end-0 m-2">${video.duration || ''}</span>
+                </div>
+                <div class="card-body d-flex flex-column">
+                    <h6 class="card-title text-truncate-2" title="${cleanTitle}">
+                        ${isSavedSomewhere ? '<span class="text-success">✔</span> ' : ''}${cleanTitle}
+                    </h6>
+                    <p class="text-muted small mb-2">${video.views || '0'} views</p>
+                    <button class="btn btn-primary btn-sm mt-auto add-to-fav">
+                        Add to Favorites
+                    </button>
                 </div>
             </div>`;
+
+        // הוספת המאזינים - כאן הטקסט מועבר בבטחה בלי לשבור כלום!
+        col.querySelector('.preview-trigger').addEventListener('click', () => openPlayer(videoId, cleanTitle));
+        col.querySelector('.add-to-fav').addEventListener('click', () => openAddModal(videoId, cleanTitle));
+
+        container.appendChild(col);
     });
 }
 
+// עדכון פונקציית הנגן שתהיה בטוחה יותר
 function openPlayer(id, title) {
+    console.log("Opening video:", id, title); // בדיקה ב-Console שהנתונים הגיעו נקיים
+
     const iframe = document.getElementById('videoPlayer');
     const titleDisp = document.getElementById('videoTitleDisplay');
-    if (iframe) iframe.src = `https://www.youtube.com/embed/${id}?autoplay=1`;
-    if (titleDisp) titleDisp.innerText = title;
-    new bootstrap.Modal(document.getElementById('videoModal')).show();
+
+    if (iframe) {
+        iframe.src = `https://www.youtube.com/embed/${id}?autoplay=1`;
+    }
+
+    if (titleDisp) {
+        titleDisp.innerText = title;
+    }
+
+    const modalElem = document.getElementById('videoModal');
+    if (modalElem) {
+        const modal = new bootstrap.Modal(modalElem);
+        modal.show();
+    }
 }
-
 // ... שאר הפונקציות (openAddModal, confirmSave, displayUserInfo) נשארות כפי שהיו ...
-
+//logout from current user
 function logout() {
     const iframe = document.getElementById('videoPlayer');
     if (iframe) iframe.src = '';
@@ -203,7 +227,7 @@ function openAddModal(id, title) {
 
 /**
  * אישור הוספת סרטון לפלייליסט (קיים או חדש) ושמירה בשרת
- * דרישות: 57, 58, 60, 62, 85, 87
+ * 
  */
 async function confirmSave() {
     const playlistSelect = document.getElementById('playlistSelect');
@@ -212,23 +236,23 @@ async function confirmSave() {
     const playlistIndex = playlistSelect ? playlistSelect.value : "";
     const newName = newNameInput ? newNameInput.value.trim() : "";
 
-    // וודא שנבחר סרטון (מתוך משתנה גלובלי selectedVideo) [cite: 54, 56]
+    // וודא שנבחר סרטון (מתוך משתנה גלובלי selectedVideo) 
     if (!selectedVideo) {
         alert("No video selected.");
         return;
     }
 
-    // יצירת עותק של הפלייליסטים הנוכחיים של המשתמש [cite: 60]
+    // יצירת עותק של הפלייליסטים הנוכחיים של המשתמש 
     let updatedPlaylists = Array.isArray(currentUser.playlists) ? [...currentUser.playlists] : [];
 
-    // אופציה 2: יצירת פלייליסט חדש והוספת השיר אליו [cite: 58, 60]
+    // אופציה 2: יצירת פלייליסט חדש והוספת השיר אליו 
     if (newName) {
         updatedPlaylists.push({
             name: newName,
             songs: [selectedVideo]
         });
     }
-    // אופציה 1: הוספה לפלייליסט קיים [cite: 57, 60]
+    // אופציה 1: הוספה לפלייליסט קיים 
     else if (playlistIndex !== "") {
         const idx = parseInt(playlistIndex);
 
@@ -252,7 +276,7 @@ async function confirmSave() {
     }
 
     try {
-        // שלב א': שליחת הנתונים המעודכנים לשרת (Node.js) [cite: 85, 87]
+        // שלב א': שליחת הנתונים המעודכנים לשרת (Node.js) 
         const response = await fetch('/api/update-playlists', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -263,11 +287,11 @@ async function confirmSave() {
         });
 
         if (response.ok) {
-            // שלב ב': עדכון הזיכרון המקומי (Session) [cite: 28]
+            // שלב ב': עדכון הזיכרון המקומי (Session) 
             currentUser.playlists = updatedPlaylists;
             sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
 
-            // שלב ג': סגירת המודאל וניקוי שדות [cite: 56]
+            // שלב ג': סגירת המודאל וניקוי שדות 
             const modalElem = document.getElementById('playlistModal');
             const modalInstance = bootstrap.Modal.getInstance(modalElem);
             if (modalInstance) modalInstance.hide();
@@ -276,7 +300,7 @@ async function confirmSave() {
             // שלב ד': הצגת הודעת הצלחה (Toast) עם קישור למעבר מהיר 
             showSuccessToast();
 
-            // שלב ה': רינדור מחדש של תוצאות החיפוש לעדכון סימן ה-"V" [cite: 61]
+            // שלב ה': רינדור מחדש של תוצאות החיפוש לעדכון סימן ה-"V" 
             renderResults(currentVideos);
         } else {
             const errorData = await response.json();
@@ -288,7 +312,7 @@ async function confirmSave() {
     }
 }
 
-// פונקציה ליצירת והצגת הודעת ה-Toast (דרישה 62) 
+// פונקציה ליצירת והצגת הודעת ה-Toast 
 function showSuccessToast() {
     const toastContainer = document.getElementById('toastContainer') || document.body;
 
