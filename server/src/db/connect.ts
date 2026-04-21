@@ -7,6 +7,7 @@ export async function connectDB(): Promise<void> {
 
     if (env.NODE_ENV === 'development' && uri.includes('<')) {
       try {
+        // @ts-ignore — dev-only package, not installed in production
         const { MongoMemoryServer } = await import('mongodb-memory-server');
         const mongod = await MongoMemoryServer.create();
         uri = mongod.getUri();
