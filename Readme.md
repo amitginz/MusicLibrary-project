@@ -1,35 +1,120 @@
-# 🎵 MusicTube - Music Management & Streaming Platform
+# MusicTube
 
-MusicTube היא אפליקציית ווב מלאה (Full-Stack) המאפשרת למשתמשים לנהל פלייליסטים אישיים, לחפש שירים ב-YouTube, ולהעלות קבצי MP3 מקומיים לשרת. המערכת כוללת נגן מדיה חכם היודע להחליף בין סרטוני YouTube לקבצי אודיו מקומיים בצורה שקופה.
+A full-stack music management and streaming platform. Search songs via YouTube, manage personal playlists, and upload local MP3 files — all from one interface.
 
-## 🚀 תכונות מרכזיות (Features)
+## Features
 
-* **ניהול משתמשים**: מערכת רישום והתחברות עם שמירת נתונים בשרת.
-* **חיפוש YouTube**: אינטגרציה מלאה עם YouTube Data API v3 לחיפוש שירים בזמן אמת.
-* **ניהול פלייליסטים**: יצירה, מחיקה וניהול פלייליסטים אישיים לכל משתמש.
-* **העלאת MP3**: אפשרות להעלאת קבצי מוזיקה מהמחשב האישי ושמירתם בשרת (Node.js/Express).
-* **נגן מדיה מתקדם**:
-    * תמיכה בפורמט כפול (YouTube IFrame + HTML5 Audio).
-    * מנגנון Autoplay למעבר אוטומטי לשיר הבא.
-    * עצירה מוחלטת של המדיה בסגירת הנגן (DOM Removal).
-* **UI/UX**: עיצוב רספונסיבי מלא (Mobile Friendly) המבוסס על Bootstrap 5.
+- **Authentication** — JWT-based register/login with password hashing (bcryptjs)
+- **YouTube Search** — Real-time song search via YouTube Data API v3
+- **Playlist Management** — Create, rename, and delete personal playlists per user
+- **MP3 Upload** — Upload local audio files; stored via Cloudinary
+- **Media Player** — Unified player supporting YouTube IFrame and HTML5 Audio, with autoplay and clean teardown on close
+- **Responsive UI** — Mobile-friendly design built with Tailwind CSS
 
-## 🛠 טכנולוגיות (Tech Stack)
+## Tech Stack
 
-* **Front-end**: HTML5, CSS3, JavaScript (ES6+), Bootstrap 5.
-* **Back-end**: Node.js, Express.js.
-* **Database**: קובץ JSON (users.json) לניהול נתונים קבוע בשרת.
-* **APIs**: YouTube Data API v3.
+### Frontend
+| Tool | Purpose |
+|---|---|
+| React 19 + TypeScript | UI framework |
+| Vite | Build tool & dev server |
+| Tailwind CSS | Styling |
+| Zustand | Global state management |
+| TanStack React Query | Server state & caching |
+| React Router v6 | Client-side routing |
+| Axios | HTTP client |
 
-## 📦 התקנה והרצה (Setup)
+### Backend
+| Tool | Purpose |
+|---|---|
+| Node.js + Express | REST API server |
+| TypeScript | Type safety |
+| MongoDB + Mongoose | Database |
+| JWT | Authentication |
+| Multer + Cloudinary | File uploads |
+| Zod | Request validation |
+| Helmet + Rate Limiting | Security |
 
-1. **שיבוט הפרויקט**:
-   וודא שכל הקבצים נמצאים בתיקייה אחת (server.js, תיקיות ה-js, ה-css וה-html).
+## Project Structure
 
-2. **תיקיית העלאות**:
-   יש לוודא שקיימת תיקייה בשם `uploads` בתיקייה הראשית (במידה ולא קיימת, יש ליצור אותה ידנית).
+```
+MusicLibrary-project/
+├── client/          # React + Vite frontend
+│   └── src/
+│       ├── pages/       # HomePage, LoginPage, RegisterPage, SearchPage, PlaylistsPage
+│       ├── components/  # Navbar, MediaPlayer, SearchCard, SongRow, ...
+│       ├── api/         # Axios API calls
+│       ├── store/       # Zustand stores
+│       └── types/       # Shared TypeScript types
+└── server/          # Express backend
+    └── src/
+        ├── controllers/
+        ├── routes/
+        ├── models/
+        ├── middleware/
+        ├── services/
+        └── config/
+```
 
-3. **התקנת תלויות**:
-   פתח טרמינל בתיקיית הפרויקט והרצ:
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18+
+- MongoDB instance (local or Atlas)
+- YouTube Data API v3 key
+- Cloudinary account
+
+### Setup
+
+1. **Clone the repository**
+
+   ```bash
+   git clone https://github.com/amitginz/MusicLibrary-project.git
+   cd MusicLibrary-project
+   ```
+
+2. **Install dependencies**
+
    ```bash
    npm install
+   ```
+
+3. **Configure environment variables**
+
+   Create `server/.env`:
+
+   ```env
+   PORT=5000
+   MONGO_URI=your_mongodb_connection_string
+   JWT_SECRET=your_jwt_secret
+   CLOUDINARY_CLOUD_NAME=your_cloud_name
+   CLOUDINARY_API_KEY=your_api_key
+   CLOUDINARY_API_SECRET=your_api_secret
+   YOUTUBE_API_KEY=your_youtube_api_key
+   ```
+
+4. **Run in development**
+
+   ```bash
+   npm run dev
+   ```
+
+   This starts both the client (Vite, port 5173) and server (Express, port 5000) concurrently.
+
+5. **Build for production**
+
+   ```bash
+   npm run build
+   ```
+
+## Deployment
+
+- **Client** — Vercel (configured via `vercel.json`)
+- **Server** — Render (or any Node.js host)
+
+Make sure to set environment variables in your hosting provider's dashboard.
+
+## License
+
+MIT
