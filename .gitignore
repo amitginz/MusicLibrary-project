@@ -18,3 +18,10 @@ yarn-error.log*
 # OS metadata
 .DS_Store
 Thumbs.db
+
+# Build outputs
+client/dist/
+server/dist/
+
+# TypeScript cache
+*.tsbuildinfo
