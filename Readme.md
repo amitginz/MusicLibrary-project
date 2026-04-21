@@ -2,6 +2,16 @@
 
 A full-stack music management and streaming platform. Search songs via YouTube, manage personal playlists, and upload local MP3 files — all from one interface.
 
+## Screenshots
+
+| Home | Login |
+|------|-------|
+| ![Home](docs/screenshots/home.png) | ![Login](docs/screenshots/login.png) |
+
+| Search | Playlists |
+|--------|-----------|
+| ![Search](docs/screenshots/search.png) | ![Playlists](docs/screenshots/playlists.png) |
+
 ## Features
 
 - **Authentication** — JWT-based register/login with password hashing (bcryptjs)
