@@ -1,5 +1,7 @@
 # MusicTube
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Visit%20App-6d28d9?style=for-the-badge&logo=vercel)](https://client-nu-ashen.vercel.app)
+
 A full-stack music management and streaming platform. Search songs via YouTube, manage personal playlists, and upload local MP3 files — all from one interface.
 
 ## Screenshots
@@ -66,6 +68,37 @@ MusicLibrary-project/
         └── config/
 ```
 
+## API Reference
+
+All endpoints are prefixed with `/api`. Protected routes require a `Bearer` JWT token in the `Authorization` header.
+
+### Auth — `/api/auth`
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/register` | No | Create a new account |
+| POST | `/login` | No | Sign in, returns JWT |
+| GET | `/me` | Yes | Get current user info |
+
+### Search — `/api/search`
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/?q=<query>` | Yes | Search YouTube for songs |
+
+### Playlists — `/api/playlists`
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/` | Yes | Get all playlists for the user |
+| POST | `/` | Yes | Create a new playlist |
+| DELETE | `/:playlistId` | Yes | Delete a playlist |
+| POST | `/:playlistId/songs` | Yes | Add a song to a playlist |
+| PATCH | `/:playlistId/songs/:songId` | Yes | Update song rating |
+| DELETE | `/:playlistId/songs/:songId` | Yes | Remove a song from a playlist |
+
+### Upload — `/api/upload`
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/mp3` | Yes | Upload an MP3 file (max 50MB) |
+
 ## Getting Started
 
 ### Prerequisites
@@ -92,7 +125,11 @@ MusicLibrary-project/
 
 3. **Configure environment variables**
 
-   Create `server/.env`:
+   ```bash
+   cp server/.env.example server/.env
+   ```
+
+   Then fill in your values in `server/.env`:
 
    ```env
    PORT=5000
